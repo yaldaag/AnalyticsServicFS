@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: analytics-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+analytics:
+  default-page-size: 100
+  max-date-range-days: 366
+  page-ttl: PT15M
+  metric-reload-interval: PT1H
+  big-query-timeout: PT30S
+  metrics-config-location: classpath:metrics/metrics.yml
