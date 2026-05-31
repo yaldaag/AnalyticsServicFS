@@ -1,21 +1,15 @@
 package com.example.analytics.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MetricDefinition {
 
     private String name;
-    private String table;
-    @JsonProperty("date_column")
-    private String dateColumn;
-    @JsonProperty("value_column")
-    private String valueColumn;
-    @JsonProperty("tenant_column")
-    private String tenantColumn;
-    @JsonProperty("member_column")
-    private String memberColumn;
-    @JsonProperty("aggregation_type")
-    private AggregationType aggregationType;
+    private SourceDefinition source;
+    private ValueDefinition value;
+    private List<PredicateDefinition> predicates = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -25,51 +19,132 @@ public class MetricDefinition {
         this.name = name;
     }
 
-    public String getTable() {
-        return table;
+    public SourceDefinition getSource() {
+        return source;
     }
 
-    public void setTable(String table) {
-        this.table = table;
+    public void setSource(SourceDefinition source) {
+        this.source = source;
     }
 
-    public String getDateColumn() {
-        return dateColumn;
+    public ValueDefinition getValue() {
+        return value;
     }
 
-    public void setDateColumn(String dateColumn) {
-        this.dateColumn = dateColumn;
+    public void setValue(ValueDefinition value) {
+        this.value = value;
     }
 
-    public String getValueColumn() {
-        return valueColumn;
+    public List<PredicateDefinition> getPredicates() {
+        return predicates;
     }
 
-    public void setValueColumn(String valueColumn) {
-        this.valueColumn = valueColumn;
+    public void setPredicates(List<PredicateDefinition> predicates) {
+        this.predicates = predicates != null ? predicates : new ArrayList<>();
     }
 
-    public String getTenantColumn() {
-        return tenantColumn;
+    public static class SourceDefinition {
+
+        private String table;
+        @JsonProperty("date_column")
+        private String dateColumn;
+        @JsonProperty("tenant_column")
+        private String tenantColumn;
+        @JsonProperty("member_column")
+        private String memberColumn;
+
+        public String getTable() {
+            return table;
+        }
+
+        public void setTable(String table) {
+            this.table = table;
+        }
+
+        public String getDateColumn() {
+            return dateColumn;
+        }
+
+        public void setDateColumn(String dateColumn) {
+            this.dateColumn = dateColumn;
+        }
+
+        public String getTenantColumn() {
+            return tenantColumn;
+        }
+
+        public void setTenantColumn(String tenantColumn) {
+            this.tenantColumn = tenantColumn;
+        }
+
+        public String getMemberColumn() {
+            return memberColumn;
+        }
+
+        public void setMemberColumn(String memberColumn) {
+            this.memberColumn = memberColumn;
+        }
     }
 
-    public void setTenantColumn(String tenantColumn) {
-        this.tenantColumn = tenantColumn;
+    public static class ValueDefinition {
+
+        private AggregationType aggregation;
+        private String column;
+        private String expression;
+
+        public AggregationType getAggregation() {
+            return aggregation;
+        }
+
+        public void setAggregation(AggregationType aggregation) {
+            this.aggregation = aggregation;
+        }
+
+        public String getColumn() {
+            return column;
+        }
+
+        public void setColumn(String column) {
+            this.column = column;
+        }
+
+        public String getExpression() {
+            return expression;
+        }
+
+        public void setExpression(String expression) {
+            this.expression = expression;
+        }
     }
 
-    public String getMemberColumn() {
-        return memberColumn;
-    }
+    public static class PredicateDefinition {
 
-    public void setMemberColumn(String memberColumn) {
-        this.memberColumn = memberColumn;
-    }
+        private String column;
+        private String operator;
+        private String literal;
 
-    public AggregationType getAggregationType() {
-        return aggregationType;
-    }
+        public String getColumn() {
+            return column;
+        }
 
-    public void setAggregationType(AggregationType aggregationType) {
-        this.aggregationType = aggregationType;
+        public void setColumn(String column) {
+            this.column = column;
+        }
+
+        public String getOperator() {
+            return operator;
+        }
+
+        public void setOperator(String operator) {
+            this.operator = operator;
+        }
+
+        public String getLiteral() {
+            return literal;
+        }
+
+        public void setLiteral(String literal) {
+            this.literal = literal;
+        }
     }
 }

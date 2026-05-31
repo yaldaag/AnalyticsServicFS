@@ -14,6 +14,7 @@ This file records the current implementation decisions for the Analytics Service
   - `date`
   - `value`
 - Metric definitions are stored in `src/main/resources/metrics/metrics.yml`.
+- Metric query behavior is driven by a structured YAML schema with `source`, `value`, and optional static `predicates` blocks.
 - Metric configuration is loaded at startup and reloaded on a fixed interval.
 - BigQuery access is isolated behind `AnalyticsRepository`.
 - Redis page caching is isolated behind `ResultPageCache`.
@@ -37,6 +38,8 @@ This file records the current implementation decisions for the Analytics Service
 - Locked the MVP to fixed time-series metric responses with `{ date, value }`.
 - Added unit and controller tests for validation, configuration, query generation, pagination, and token ownership behavior.
 - Added `README.md` with run instructions, API examples, response contracts, configuration details, testing, and limitations.
+- Refactored metric definitions into a richer declarative schema so common metric additions and query changes can be made in `metrics.yml` without Java code changes.
+- Added validation and query builder support for nested metric `source`, aggregated `value`, optional aggregate expressions, and static configured predicates.
 
 ## Future Extension Notes
 - Replace trusted headers with authenticated identity claims from an upstream auth layer.

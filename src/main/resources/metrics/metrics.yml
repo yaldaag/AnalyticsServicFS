@@ -1,14 +1,22 @@
 metrics:
   - name: daily_active_users
-    table: demo.analytics.daily_active_users
-    date_column: activity_date
-    tenant_column: tenant_id
-    member_column: member_id
-    aggregation_type: COUNT
+    source:
+      table: demo.analytics.daily_active_users
+      date_column: activity_date
+      tenant_column: tenant_id
+      member_column: member_id
+    value:
+      aggregation: COUNT
+    predicates:
+      - column: event_type
+        operator: "="
+        literal: login
   - name: daily_revenue
-    table: demo.analytics.daily_revenue
-    date_column: revenue_date
-    value_column: revenue_amount
-    tenant_column: tenant_id
-    member_column: member_id
-    aggregation_type: SUM
+    source:
+      table: demo.analytics.daily_revenue
+      date_column: revenue_date
+      tenant_column: tenant_id
+      member_column: member_id
+    value:
+      aggregation: SUM
+      column: revenue_amount

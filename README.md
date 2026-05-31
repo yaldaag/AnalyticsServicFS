@@ -7,7 +7,7 @@ The MVP is intentionally narrow:
 - Java 17, Maven, Spring Boot
 - Fixed time-series row shape: `{ "date": "YYYY-MM-DD", "value": 123 }`
 - Trusted tenant/member context comes from request headers
-- Metric definitions live in a YAML configuration file and reload on a fixed interval
+- Metric definitions live in a structured YAML configuration file and reload on a fixed interval
 
 ## How To Run The Service
 ### Prerequisites
@@ -194,21 +194,56 @@ Important properties:
 
 Metric definitions live in `src/main/resources/metrics/metrics.yml`.
 
-Example metric definition:
+The metric catalog is now declarative: you can add or change many metrics by editing YAML rather than changing Java code, as long as the metric still fits the fixed `{ date, value }` response shape.
+
+Example metric definitions:
 ```yaml
 metrics:
   - name: daily_active_users
-    table: demo.analytics.daily_active_users
-    date_column: activity_date
-    tenant_column: tenant_id
-    member_column: member_id
-    aggregation_type: COUNT
+    source:
+      table: demo.analytics.daily_active_users
+      date_column: activity_date
+      tenant_column: tenant_id
+      member_column: member_id
+    value:
+      aggregation: COUNT
+    predicates:
+      - column: event_type
+        operator: "="
+        literal: login
+
+  - name: daily_revenue
+    source:
+      table: demo.analytics.daily_revenue
+      date_column: revenue_date
+      tenant_column: tenant_id
+      member_column: member_id
+    value:
+      aggregation: SUM
+      column: revenue_amount
 ```
+
+Config fields:
+- `source.table`: BigQuery table or view
+- `source.date_column`: date column used for filtering, grouping, and output alias `date`
+- `source.tenant_column`: tenant ownership column
+- `source.member_column`: member ownership column
+- `value.aggregation`: one of `COUNT`, `SUM`, `AVG`
+- `value.column`: required for `SUM` and `AVG` unless `value.expression` is used
+- `value.expression`: optional controlled expression for aggregate inputs such as `IFNULL(amount, 0)`
+- `predicates[]`: optional static filters with allowlisted operators and parameterized literals
 
 Supported aggregation types in the MVP:
 - `COUNT`
 - `SUM`
 - `AVG`
+
+Current guardrails:
+- the API response shape remains fixed to `date` and `value`
+- request parameters are still bound as named query parameters
+- raw SQL templates are not allowed in config
+- predicate operators are restricted to a small allowlist
+- identifiers and value expressions are validated before reload succeeds
 
 ## Testing Instructions
 Run the full test suite:
@@ -231,7 +266,7 @@ The current suite covers:
 ## Important Assumptions And Limitations
 - The service is an MVP and currently supports only fixed time-series results with `date` and `value`.
 - Tenant/member identity is trusted from `X-Tenant-Id` and `X-Member-Id` headers; a real auth layer should replace or back these headers later.
-- BigQuery SQL is generated only from safe, structured metric configuration. Raw SQL is intentionally not accepted from clients.
+- BigQuery SQL is generated only from safe, structured metric configuration. Raw SQL is intentionally not accepted from clients or metric config in this phase.
 - The implementation fetches the full bounded result in the synchronous request path and uses Redis only for temporary overflow pages.
 - Redis is not a durable result store and is not suitable for arbitrarily large result sets.
 - For future large-scale workloads, queries should move to an async execution model that splits work by date range and stores durable results outside Redis.
